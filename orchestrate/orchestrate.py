@@ -5,15 +5,17 @@ import subprocess
 
 poolSize = 4
 containers = []
+services = ['serviceA', 'serviceB']
+etcdUrl = 'http://localhost:4001'
+etcdHeader = {'Content-Type':'application/x-www-form-urlencoded'}
 
 ###########################################
 def setDefaultConfig():
-  headers = {'Content-Type':'application/x-www-form-urlencoded'}
   body = 'value="more stuff"'
-  resp = requests.put('http://localhost:4001/v2/keys/test', 
-    headers=headers, 
+  response = requests.put(etcdUrl + '/v2/keys/test', 
+    headers=etcdHeader, 
     data=body)
-  print(resp.json())
+  print(response.json())
 
 ###########################################
 def createPool():
@@ -22,18 +24,28 @@ def createPool():
     name = 'pool_' + str(i)
     output = subprocess.check_output(['docker', 'run', '-d', 
       '--name', name, '--net=host', 'centos-supervisor'])
-    containers.append(output.translate(None, ''.join(['\n'])))
-    print(containers)
+    containers.append(name)
+    print(name)
 
   # Set pool info
-  body = 'value=' + str(poolSize)
-  resp = requests.put('http://localhost:4001/v2/keys/poolSize', 
-    headers={'Content-Type':'application/x-www-form-urlencoded'}, 
-    data=body)
+#  body = 'value=' + str(poolSize)
+#  response = requests.put(etcdUrl + '/v2/keys/poolSize', 
+#    headers=etcdHeader, 
+#    data=body)
+#  print(response.json())
 
 ###########################################
 def assignServices():
-  pass
+  for service in services:
+    container = containers.pop()
+    body = 'value=' + str(service)
+    print(body)
+    url = etcdUrl + '/v2/keys/poolContainers/' + container + '/service' 
+    print(url)
+    response = requests.put(url,
+      headers=etcdHeader, 
+      data=body)
+    print(response.json())
 
 ###########################################
 if __name__ == '__main__':
