@@ -9,5 +9,7 @@ DOCKER_ID=$(cat /proc/self/cgroup | \
 curl -XPUT http://localhost:4001/v2/keys/poolContainers/"$DOCKER_ID" -d dir=true
 
 # Wait on command from orchestrator
-SERVICE=$(curl http://localhost:4001/v2/keys/poolContainers/"$DOCKER_ID"/service?wait=true | python -c 'import json,sys;j=json.load(sys.stdin);print j["node"]["value"]')
+SERVICE=$( \
+  curl http://localhost:4001/v2/keys/poolContainers/"$DOCKER_ID"/service?wait=true | \
+  python -c 'import json,sys;j=json.load(sys.stdin);print j["node"]["value"]')
 echo "Service: $SERVICE"

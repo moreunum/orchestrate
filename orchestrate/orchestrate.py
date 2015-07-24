@@ -4,6 +4,7 @@ import requests
 import subprocess
 
 poolSize = 4
+containers = []
 
 ###########################################
 def setDefaultConfig():
@@ -16,10 +17,25 @@ def setDefaultConfig():
 
 ###########################################
 def createPool():
+  #Create containers
   for i in range(0, 4):
+    name = 'pool_' + str(i)
     output = subprocess.check_output(['docker', 'run', '-d', 
-      '--name', 'pool_%d' % i, '--net=host', 'centos-supervisor'])
+      '--name', name, '--net=host', 'centos-supervisor'])
+    containers.append(output.translate(None, ''.join(['\n'])))
+    print(containers)
+
+  # Set pool info
+  body = 'value=' + str(poolSize)
+  resp = requests.put('http://localhost:4001/v2/keys/poolSize', 
+    headers={'Content-Type':'application/x-www-form-urlencoded'}, 
+    data=body)
+
+###########################################
+def assignServices():
+  pass
 
 ###########################################
 if __name__ == '__main__':
   createPool()
+  assignServices()

@@ -1,3 +1,2 @@
-* http command to etcd to setup initial config
-* pool manager
-* container registration
+* orchestrator assign services to pool containers and start new containers
+
