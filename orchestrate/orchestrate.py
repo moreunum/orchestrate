@@ -3,6 +3,7 @@
 import requests
 import subprocess
 import time
+import BaseHTTPServer
 
 poolSize = 4
 containers = []
@@ -11,29 +12,13 @@ etcdUrl = 'http://localhost:4001'
 etcdHeader = {'Content-Type':'application/x-www-form-urlencoded'}
 
 ###########################################
-def setDefaultConfig():
-  body = 'value="more stuff"'
-  response = requests.put(etcdUrl + '/v2/keys/test', 
-    headers=etcdHeader, 
-    data=body)
-  print(response.json())
-
-###########################################
 def createPool():
-  #Create containers
   for i in range(0, 4):
     name = 'pool_' + str(i)
     output = subprocess.check_output(['docker', 'run', '-d', 
       '--name', name, '--net=host', '-e', 'MY_NAME=' + name, 'redshirt'])
     containers.append(name)
     print(name)
-
-  # Set pool info
-#  body = 'value=' + str(poolSize)
-#  response = requests.put(etcdUrl + '/v2/keys/poolSize', 
-#    headers=etcdHeader, 
-#    data=body)
-#  print(response.json())
 
 ###########################################
 def assignServices():
@@ -49,7 +34,24 @@ def assignServices():
     print(response.json())
 
 ###########################################
+def setStatus(status):
+    response = requests.put(etcdUrl + '/v2/keys/orchestrator/status', 
+      headers=etcdHeader, 
+      data=status)
+  
+###########################################
+class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
+  def do_GET(s):
+    s.send_response(200)
+    s.send_header('Content-type', 'text/html')
+    s.end_headers()
+    s.wfile.write(
+
+###########################################
 if __name__ == '__main__':
+  setStatus('notReady')
   createPool()
+  print("Delay to allow for container startup...")
   time.sleep(5)
+  setStatus('ready')
   assignServices()
