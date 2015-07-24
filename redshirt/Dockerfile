@@ -7,6 +7,8 @@ RUN \
 #FROM centos-supervisor
 
 COPY mgr.sh /
+COPY serviceA.sh /
+COPY serviceB.sh /
 COPY bootstrap.sh /
 COPY supervisord.conf /
 

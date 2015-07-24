@@ -13,3 +13,5 @@ SERVICE=$( \
   curl http://localhost:4001/v2/keys/poolContainers/"$DOCKER_ID"/service?wait=true | \
   python -c 'import json,sys;j=json.load(sys.stdin);print j["node"]["value"]')
 echo "Service: $SERVICE"
+
+supervisorctl start "$SERVICE"
