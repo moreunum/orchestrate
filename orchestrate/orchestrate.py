@@ -2,6 +2,7 @@
 
 import requests
 import subprocess
+import time
 
 poolSize = 4
 containers = []
@@ -23,7 +24,7 @@ def createPool():
   for i in range(0, 4):
     name = 'pool_' + str(i)
     output = subprocess.check_output(['docker', 'run', '-d', 
-      '--name', name, '--net=host', 'centos-supervisor'])
+      '--name', name, '--net=host', '-e', 'MY_NAME=' + name, 'redshirt'])
     containers.append(name)
     print(name)
 
@@ -50,4 +51,5 @@ def assignServices():
 ###########################################
 if __name__ == '__main__':
   createPool()
+  time.sleep(5)
   assignServices()
